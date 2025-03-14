@@ -38,8 +38,8 @@ go get github.com/go-playground/validator/v10
 
 1. **Клонирование репозитория**:
    ```bash
-   git clone https://github.com/username/your-repo.git
-   cd your-repo
+   git clone https://github.com/antitoxical/RestAPI.git
+   cd RestAPI
    ```
 
 2. **Установка зависимостей**:
@@ -49,10 +49,10 @@ go get github.com/go-playground/validator/v10
 
 3. **Запуск приложения**:
    ```bash
-   go run cmd/server/main.go
+   go run cmd/main.go
    ```
 
-Приложение будет доступно по адресу: `http://localhost:8080`.
+Приложение будет доступно по адресу: `http://localhost:24110`.
 
 ---
 
@@ -62,8 +62,7 @@ go get github.com/go-playground/validator/v10
 
 ```
 cmd/
-└── server/
-    └── main.go  # Точка входа в приложение
+└── main.go  # Точка входа в приложение
 internal/
 ├── entity/      # Модели данных (Writer, News, Mark, Message)
 │   ├── writer.go
@@ -102,7 +101,7 @@ internal/
 ### Запуск сервера
 Чтобы запустить сервер, выполните следующую команду:
 ```bash
-go run cmd/server/main.go
+go run cmd/main.go
 ```
 
 По умолчанию сервер будет запущен на порту `24110` для проверки работоспособности на стороннем сервисе.
