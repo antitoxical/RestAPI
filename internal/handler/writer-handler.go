@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"RESTAPI/internal/dto"
 	"RESTAPI/internal/service"
@@ -24,26 +26,34 @@ func (h *WriterHandler) Create(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request format"})
 	}
-	if err := validator.New().Struct(req); err != nil {
+
+	if err := validator.New().Struct(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
+
 	resp, err := h.service.Create(req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
+	fmt.Println(req.ID)
 	return c.JSON(http.StatusCreated, resp)
 }
 
 func (h *WriterHandler) GetById(c echo.Context) error {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil || id <= 0 {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
 	}
-	resp, err := h.service.GetById(id)
+	writer, err := h.service.GetById(id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
+		if strings.Contains(err.Error(), "not found") {
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Writer not found"})
+		}
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
-	return c.JSON(http.StatusOK, resp)
+
+	return c.JSON(http.StatusOK, writer)
 }
 
 func (h *WriterHandler) Update(c echo.Context) error {

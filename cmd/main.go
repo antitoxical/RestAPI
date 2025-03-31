@@ -1,33 +1,45 @@
 package main
 
 import (
+	"RESTAPI/db"
+	"RESTAPI/internal/entity"
 	"RESTAPI/internal/handler"
+	"RESTAPI/internal/repository"
 	"RESTAPI/internal/service"
-	"RESTAPI/internal/storage"
+	"log"
 
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
+
+	db, err := db.Connect()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
 	e := echo.New()
 
 	// Инициализация хранилищ
-	writerStorage := storage.NewWriterStorage()
-	newsStorage := storage.NewNewsStorage()
-	messageStorage := storage.NewMessageStorage()
-	markStorage := storage.NewMarkStorage()
+	writerRepo := repository.NewWriterRepository(db)
+	log.Println(entity.Writer{})
+	newsRepo := repository.NewNewsRepository(db)
+	markRepo := repository.NewMarkRepository(db)
+	messageRepo := repository.NewMessageRepository(db)
 
-	// Инициализация сервисов
-	writerService := service.NewWriterService(writerStorage)
-	newsService := service.NewNewsService(newsStorage)
-	messageService := service.NewMessageService(messageStorage)
-	markService := service.NewMarkService(markStorage)
+	// Создание сервисов
+	writerService := service.NewWriterService(writerRepo)
+	newsService := service.NewNewsService(newsRepo)
+	markService := service.NewMarkService(markRepo)
+	messageService := service.NewMessageService(messageRepo)
 
-	// Инициализация обработчиков
+	// Создание обработчиков
 	writerHandler := handler.NewWriterHandler(writerService)
 	newsHandler := handler.NewNewsHandler(newsService)
-	messageHandler := handler.NewMessageHandler(messageService)
 	markHandler := handler.NewMarkHandler(markService)
+	messageHandler := handler.NewMessageHandler(messageService)
+
+	log.Println("Tables created successfully", entity.Message{}, entity.Writer{})
 
 	// Маршруты для Writer
 	e.POST("/api/v1.0/writers", writerHandler.Create)

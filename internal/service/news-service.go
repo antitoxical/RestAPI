@@ -3,16 +3,16 @@ package service
 import (
 	"RESTAPI/internal/dto"
 	"RESTAPI/internal/entity"
-	"RESTAPI/internal/storage"
+	"RESTAPI/internal/repository"
 	"errors"
 	"time"
 )
 
 type NewsService struct {
-	repo *storage.NewsStorage
+	repo *repository.NewsRepository
 }
 
-func NewNewsService(repo *storage.NewsStorage) *NewsService {
+func NewNewsService(repo *repository.NewsRepository) *NewsService {
 	return &NewsService{repo: repo}
 }
 
@@ -24,12 +24,12 @@ func (s *NewsService) Create(req dto.NewsRequestTo) (*dto.NewsResponseTo, error)
 		Created:  time.Now(),
 		Modified: time.Now(),
 	}
-	id, err := s.repo.Create(news)
+	err := s.repo.Create(news)
 	if err != nil {
 		return nil, err
 	}
 	return &dto.NewsResponseTo{
-		ID:       id,
+		ID:       news.ID,
 		WriterID: news.WriterID,
 		Title:    news.Title,
 		Content:  news.Content,

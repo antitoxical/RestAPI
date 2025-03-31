@@ -3,15 +3,15 @@ package service
 import (
 	"RESTAPI/internal/dto"
 	"RESTAPI/internal/entity"
-	"RESTAPI/internal/storage"
+	"RESTAPI/internal/repository"
 	"errors"
 )
 
 type MarkService struct {
-	repo *storage.MarkStorage
+	repo *repository.MarkRepository
 }
 
-func NewMarkService(repo *storage.MarkStorage) *MarkService {
+func NewMarkService(repo *repository.MarkRepository) *MarkService {
 	return &MarkService{repo: repo}
 }
 
@@ -19,12 +19,12 @@ func (s *MarkService) Create(req dto.MarkRequestTo) (*dto.MarkResponseTo, error)
 	mark := &entity.Mark{
 		Name: req.Name,
 	}
-	id, err := s.repo.Create(mark)
+	err := s.repo.Create(mark)
 	if err != nil {
 		return nil, err
 	}
 	return &dto.MarkResponseTo{
-		ID:   id,
+		ID:   mark.ID,
 		Name: mark.Name,
 	}, nil
 }

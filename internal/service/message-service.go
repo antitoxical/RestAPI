@@ -3,15 +3,15 @@ package service
 import (
 	"RESTAPI/internal/dto"
 	"RESTAPI/internal/entity"
-	"RESTAPI/internal/storage"
+	"RESTAPI/internal/repository"
 	"errors"
 )
 
 type MessageService struct {
-	repo *storage.MessageStorage
+	repo *repository.MessageRepository
 }
 
-func NewMessageService(repo *storage.MessageStorage) *MessageService {
+func NewMessageService(repo *repository.MessageRepository) *MessageService {
 	return &MessageService{repo: repo}
 }
 
@@ -20,12 +20,12 @@ func (s *MessageService) Create(req dto.MessageRequestTo) (*dto.MessageResponseT
 		NewsID:  req.NewsID,
 		Content: req.Content,
 	}
-	id, err := s.repo.Create(message)
+	err := s.repo.Create(message) // Вызываем метод из репозитория
 	if err != nil {
 		return nil, err
 	}
 	return &dto.MessageResponseTo{
-		ID:      id,
+		ID:      message.ID,
 		NewsID:  message.NewsID,
 		Content: message.Content,
 	}, nil
