@@ -6,6 +6,7 @@ import (
 
 	"RESTAPI/internal/dto"
 	"RESTAPI/internal/service"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -24,13 +25,22 @@ func (h *NewsHandler) Create(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request format"})
 	}
+
 	if err := validator.New().Struct(req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
+
 	resp, err := h.service.Create(req)
 	if err != nil {
+		// Handle different types of errors with appropriate status codes
+		if strings.Contains(err.Error(), "writer not found") {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		} else if strings.Contains(err.Error(), "already exists") {
+			return c.JSON(http.StatusForbidden, map[string]string{"error": err.Error()})
+		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
+
 	return c.JSON(http.StatusCreated, resp)
 }
 

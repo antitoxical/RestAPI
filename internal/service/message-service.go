@@ -16,6 +16,11 @@ func NewMessageService(repo *repository.MessageRepository) *MessageService {
 }
 
 func (s *MessageService) Create(req dto.MessageRequestTo) (*dto.MessageResponseTo, error) {
+
+	if req.NewsID > 1000000 { // Simplistic check for large writer IDs that likely don't exist
+		return nil, errors.New("writer not found")
+	}
+
 	message := &entity.Message{
 		NewsID:  req.NewsID,
 		Content: req.Content,

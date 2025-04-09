@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -33,9 +32,12 @@ func (h *WriterHandler) Create(c echo.Context) error {
 
 	resp, err := h.service.Create(req)
 	if err != nil {
+		if err.Error() == "login_already_exists" {
+			return c.JSON(http.StatusForbidden, map[string]string{"error": "Login already exists"})
+		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
-	fmt.Println(req.ID)
+
 	return c.JSON(http.StatusCreated, resp)
 }
 

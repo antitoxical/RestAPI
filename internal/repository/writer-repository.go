@@ -46,3 +46,13 @@ func (r *WriterRepository) GetAll() ([]entity.Writer, error) {
 	}
 	return writers, nil
 }
+
+// This would be in your repository/writer-repository.go file
+func (r *WriterRepository) GetByLogin(login string) (*entity.Writer, error) {
+	var writer entity.Writer
+	result := r.BaseRepository.db.Where("login = ?", login).First(&writer)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &writer, nil
+}

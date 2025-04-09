@@ -80,14 +80,19 @@ func (h *MarkHandler) Delete(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
 	}
 
-	err = h.service.Delete(id)
+	// First check if the mark exists
+	_, err = h.service.GetById(id)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Mark not found"})
 	}
 
+	err = h.service.Delete(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
-
 func (h *MarkHandler) GetAll(c echo.Context) error {
 	marks, err := h.service.GetAll()
 	if err != nil {

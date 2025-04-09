@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"net/http"
-	"strconv"
-
 	"RESTAPI/internal/dto"
 	"RESTAPI/internal/service"
+	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -30,7 +30,14 @@ func (h *MessageHandler) Create(c echo.Context) error {
 	resp, err := h.service.Create(req)
 
 	if err != nil {
+		// Handle different types of errors with appropriate status codes
+		if strings.Contains(err.Error(), "writer not found") {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		} else if strings.Contains(err.Error(), "already exists") {
+			return c.JSON(http.StatusForbidden, map[string]string{"error": err.Error()})
+		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+
 	}
 	return c.JSON(http.StatusCreated, resp)
 }

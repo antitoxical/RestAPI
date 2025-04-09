@@ -18,6 +18,12 @@ func NewWriterService(repo *repository.WriterRepository) *WriterService {
 
 // Create creates a new writer
 func (s *WriterService) Create(req dto.WriterRequestTo) (*dto.WriterResponseTo, error) {
+	// Check if the login already exists
+	existingWriter, err := s.repo.GetByLogin(req.Login)
+	if err == nil && existingWriter != nil {
+		return nil, fmt.Errorf("login_already_exists")
+	}
+
 	writer := &entity.Writer{
 		Login:     req.Login,
 		Password:  req.Password,
@@ -25,7 +31,7 @@ func (s *WriterService) Create(req dto.WriterRequestTo) (*dto.WriterResponseTo, 
 		LastName:  req.LastName,
 	}
 
-	err := s.repo.Create(writer)
+	err = s.repo.Create(writer)
 	if err != nil {
 		return nil, err
 	}

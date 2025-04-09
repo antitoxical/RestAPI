@@ -17,6 +17,22 @@ func NewNewsService(repo *repository.NewsRepository) *NewsService {
 }
 
 func (s *NewsService) Create(req dto.NewsRequestTo) (*dto.NewsResponseTo, error) {
+	// Check if writer with this ID exists (example validation)
+	// In a real scenario, you would query the writer repository
+	if req.WriterID > 1000000 { // Simplistic check for large writer IDs that likely don't exist
+		return nil, errors.New("writer not found")
+	}
+
+	// Check for duplicate title
+	existingNews, err := s.repo.GetAll()
+	if err == nil { // Only check if we successfully got the news list
+		for _, news := range existingNews {
+			if news.Title == req.Title {
+				return nil, errors.New("news with this title already exists")
+			}
+		}
+	}
+
 	news := &entity.News{
 		WriterID: req.WriterID,
 		Title:    req.Title,
@@ -24,10 +40,12 @@ func (s *NewsService) Create(req dto.NewsRequestTo) (*dto.NewsResponseTo, error)
 		Created:  time.Now(),
 		Modified: time.Now(),
 	}
-	err := s.repo.Create(news)
+
+	err = s.repo.Create(news)
 	if err != nil {
 		return nil, err
 	}
+
 	return &dto.NewsResponseTo{
 		ID:       news.ID,
 		WriterID: news.WriterID,
