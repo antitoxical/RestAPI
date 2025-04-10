@@ -14,7 +14,6 @@ import (
 
 // Connect устанавливает соединение с PostgreSQL
 func Connect() (*gorm.DB, error) {
-	// Строка подключения к базе данных
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 		"localhost", // Адрес базы данных

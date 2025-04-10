@@ -84,17 +84,27 @@ func (h *NewsHandler) Update(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// Delete handles news deletion requests
 func (h *NewsHandler) Delete(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id <= 0 {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
 	}
 
-	err = h.service.Delete(id)
+	// Try to get the news first to check if it exists
+	_, err = h.service.GetById(id)
 	if err != nil {
+		// If the news doesn't exist, return 404
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "News not found"})
 	}
 
+	// Delete the news
+	err = h.service.Delete(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	// Return 204 No Content for successful deletion
 	return c.NoContent(http.StatusNoContent)
 }
 

@@ -32,8 +32,42 @@ func (r *NewsRepository) Update(news *entity.News) error {
 }
 
 // Delete удаляет новость по ID
+// Delete deletes a news article by ID and removes mark associations
 func (r *NewsRepository) Delete(id int64) error {
-	return r.BaseRepository.Delete(id)
+	// First, get the news with its marks
+	news, err := r.GetById(id)
+	if err != nil {
+		return err
+	}
+
+	// Begin a transaction
+	tx := r.BaseRepository.db.Begin()
+
+	if err := tx.Exec("DELETE FROM news_mark WHERE news_id = ?", id).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Then delete the news
+	if err := tx.Exec("DELETE FROM tbl_news WHERE id = ?", id).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Remove the associations in the join table
+	if err := tx.Model(&news).Association("Marks").Clear(); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Delete the news article
+	if err := tx.Delete(&news).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Commit the transaction
+	return tx.Commit().Error
 }
 
 // GetAll возвращает все новости

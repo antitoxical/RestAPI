@@ -29,7 +29,7 @@ func main() {
 
 	// Создание сервисов
 	writerService := service.NewWriterService(writerRepo)
-	newsService := service.NewNewsService(newsRepo)
+	newsService := service.NewNewsService(newsRepo, markRepo)
 	markService := service.NewMarkService(markRepo)
 	messageService := service.NewMessageService(messageRepo)
 

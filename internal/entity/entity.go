@@ -33,6 +33,7 @@ type News struct {
 	Content  string    `gorm:"type:text;not null" json:"content"`
 	Created  time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created"`
 	Modified time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"modified"`
+	Marks    []Mark    `gorm:"many2many:news_mark;"`
 }
 
 type Message struct {
