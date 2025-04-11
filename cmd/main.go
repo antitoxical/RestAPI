@@ -22,7 +22,7 @@ func main() {
 
 	// Инициализация хранилищ
 	writerRepo := repository.NewWriterRepository(db)
-	log.Println(entity.Writer{})
+
 	newsRepo := repository.NewNewsRepository(db)
 	markRepo := repository.NewMarkRepository(db)
 	messageRepo := repository.NewMessageRepository(db)
